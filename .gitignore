@@ -1,0 +1,7 @@
+# ignore bin folder
+bin/
+
+#ignore debug folder
+debug/
+
+#ignore .DS_S
