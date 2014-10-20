@@ -12,10 +12,8 @@ import android.content.SharedPreferences;
 public class PhysicalPower {
 	private final static String KEY_PRE_PHYSICALPOWER = "KEY_PRE_PHYSICALPOWER";
 	private final static String KEY_PRE_MAX_NUMBER = "KEY_PRE_MAX_NUMBER";
+	private final static String KEY_PRE_CURRENT_NUMBER = "KEY_PRE_CURRENT_NUMBER";
 	private final static String KEY_PRE_RESET_TIME = "KEY_PRE_RESET_TIME";
-	private final static int maxNumber = 5;
-	private int currentNumber;
-	private int resetTime;
 	private boolean startReset = false;
 
 	private PhysicalPower() {
@@ -32,14 +30,25 @@ public class PhysicalPower {
 		}
 	}
 
-	private int getMaxNumber(Context context) {
+	/**
+	 * 获取体力上限
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public int getMaxNumber(Context context) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		currentNumber = preferences.getInt(KEY_PRE_MAX_NUMBER, 1800);
-		return currentNumber;
+		return preferences.getInt(KEY_PRE_MAX_NUMBER, 5);
 	}
 
-	private void setMaxNumber(Context context, int maxNumber) {
+	/**
+	 * 设置体力上限
+	 * 
+	 * @param context
+	 * @param maxNumber
+	 */
+	public void setMaxNumber(Context context, int maxNumber) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
@@ -47,14 +56,51 @@ public class PhysicalPower {
 		editor.commit();
 	}
 
-	private int getResetTime(Context context) {
+	/**
+	 * 获取当前的体力值
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public int getCurrentNumber(Context context) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		resetTime = preferences.getInt(KEY_PRE_RESET_TIME, 1800);
-		return resetTime;
+		return preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
 	}
 
-	private void setResetTime(Context context, int resetTime) {
+	/**
+	 * 设置当前的体力值
+	 * 
+	 * @param context
+	 * @param maxNumber
+	 */
+	public void setCurrentNumber(Context context, int maxNumber) {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(KEY_PRE_CURRENT_NUMBER, maxNumber);
+		editor.commit();
+	}
+
+	/**
+	 * 获取体力刷新间隔
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public int getResetTime(Context context) {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		return preferences.getInt(KEY_PRE_RESET_TIME, 1800);
+	}
+
+	/**
+	 * 设置体力刷新间隔
+	 * 
+	 * @param context
+	 * @param resetTime
+	 */
+	public void setResetTime(Context context, int resetTime) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
@@ -66,8 +112,8 @@ public class PhysicalPower {
 	 * 体力消耗
 	 */
 	public void consumePower(Context context) {
-		currentNumber -= 1;
-		setMaxNumber(context, currentNumber);
+		// currentNumber -= 1;
+		// setCurrentNumber(context, currentNumber);
 	}
 
 	/**
@@ -77,8 +123,8 @@ public class PhysicalPower {
 	 *            购买的体力值
 	 */
 	public void plusPower(Context context, int num) {
-		currentNumber += num;
-		setMaxNumber(context, currentNumber);
+		// currentNumber += num;
+		// setCurrentNumber(context, currentNumber);
 	}
 
 }
