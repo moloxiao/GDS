@@ -67,7 +67,6 @@ public class PhysicalPower {
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
 		long time = System.currentTimeMillis() - getQuitTime(context);
-
 		if (time > 0) {
 			if (temp < getMaxNumber(context)) {
 				temp += time / (getResetTime(context) * 1000);
@@ -119,10 +118,28 @@ public class PhysicalPower {
 		editor.commit();
 	}
 
-	public long getQuitTime(Context context) {
+	// 获取退出的系统时间
+	private long getQuitTime(Context context) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		return preferences.getLong(KEY_PRE_QUIT_TIME, 0);
+	}
+
+	/**
+	 * 消耗体力值
+	 * 
+	 * @param context
+	 * @return 剩余体力值
+	 */
+	public int consumePower(Context context) {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
+		temp--;
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(KEY_PRE_CURRENT_NUMBER, temp);
+		editor.commit();
+		return temp;
 	}
 
 }
