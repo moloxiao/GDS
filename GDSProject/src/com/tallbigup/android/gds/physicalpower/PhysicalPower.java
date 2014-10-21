@@ -14,7 +14,7 @@ public class PhysicalPower {
 	private final static String KEY_PRE_MAX_NUMBER = "KEY_PRE_MAX_NUMBER";
 	private final static String KEY_PRE_CURRENT_NUMBER = "KEY_PRE_CURRENT_NUMBER";
 	private final static String KEY_PRE_RESET_TIME = "KEY_PRE_RESET_TIME";
-	private boolean startReset = false;
+	private final static String KEY_PRE_QUIT_TIME = "KEY_PRE_QUIT_TIME";
 
 	private PhysicalPower() {
 		// 私有构造
@@ -57,28 +57,39 @@ public class PhysicalPower {
 	}
 
 	/**
-	 * 获取当前的体力值
+	 * 获取当前的体力值,下一次恢复的时间豪秒
 	 * 
 	 * @param context
 	 * @return
 	 */
-	public int getCurrentNumber(Context context) {
+	public PlayerState getCurrentNumber(Context context) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		return preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
+		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
+		long time = System.currentTimeMillis() - getQuitTime(context);
+
+		if (time > 0) {
+			if (temp < getMaxNumber(context)) {
+				temp += time / (getResetTime(context) * 1000);
+				time = time % (getResetTime(context) * 1000);
+			}
+		}
+		PlayerState state = new PlayerState(temp, time);
+		return state;
 	}
 
 	/**
-	 * 设置当前的体力值
+	 * 设置离开游戏时的体力值,系统时间毫秒
 	 * 
 	 * @param context
 	 * @param maxNumber
 	 */
-	public void setCurrentNumber(Context context, int maxNumber) {
+	public void setCurrentNumber(Context context, PlayerState playerState) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putInt(KEY_PRE_CURRENT_NUMBER, maxNumber);
+		editor.putInt(KEY_PRE_CURRENT_NUMBER, playerState.getCurrentPower());
+		editor.putLong(KEY_PRE_QUIT_TIME, playerState.getSecond());
 		editor.commit();
 	}
 
@@ -108,23 +119,10 @@ public class PhysicalPower {
 		editor.commit();
 	}
 
-	/**
-	 * 体力消耗
-	 */
-	public void consumePower(Context context) {
-		// currentNumber -= 1;
-		// setCurrentNumber(context, currentNumber);
-	}
-
-	/**
-	 * 
-	 * @param context
-	 * @param num
-	 *            购买的体力值
-	 */
-	public void plusPower(Context context, int num) {
-		// currentNumber += num;
-		// setCurrentNumber(context, currentNumber);
+	public long getQuitTime(Context context) {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		return preferences.getLong(KEY_PRE_QUIT_TIME, 0);
 	}
 
 }
