@@ -2,13 +2,11 @@ package com.tallbigup.android.gds.physicalpower;
 
 public class PlayerState {
 	private int currentPower;
-	private int maxPower;
 	private long second;
 
-	public PlayerState(int currentPower, int maxPower, long second) {
+	public PlayerState(int currentPower, long second) {
 		super();
 		this.currentPower = currentPower;
-		this.maxPower = maxPower;
 		this.second = second;
 	}
 
@@ -26,14 +24,6 @@ public class PlayerState {
 
 	public void setSecond(long second) {
 		this.second = second;
-	}
-
-	public int getMaxPower() {
-		return maxPower;
-	}
-
-	public void setMaxPower(int maxPower) {
-		this.maxPower = maxPower;
 	}
 
 }
