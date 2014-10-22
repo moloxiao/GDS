@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * 单例实现
+ * 单例
  * 
  * @author qiuzhong
  * 
@@ -92,12 +92,7 @@ public class PhysicalPower {
 		editor.commit();
 	}
 
-	/**
-	 * 获取体力刷新间隔
-	 * 
-	 * @param context
-	 * @return
-	 */
+	// 获取体力刷新间隔
 	public int getResetTime(Context context) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
@@ -142,4 +137,13 @@ public class PhysicalPower {
 		return temp;
 	}
 
+	/**
+	 * 时间刷新接口
+	 * 
+	 * @author qiuzhong
+	 * 
+	 */
+	public interface updateTime {
+		void updateResetTime(int second);
+	}
 }
