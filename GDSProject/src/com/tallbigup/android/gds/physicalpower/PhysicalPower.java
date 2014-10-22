@@ -78,6 +78,20 @@ public class PhysicalPower {
 	}
 
 	/**
+	 * 设置体力刷新间隔
+	 * 
+	 * @param context
+	 * @param resetTime
+	 */
+	public void setResetTime(Context context, int resetTime) {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt(KEY_PRE_RESET_TIME, resetTime);
+		editor.commit();
+	}
+
+	/**
 	 * 设置离开游戏时的体力值,系统时间毫秒
 	 * 
 	 * @param context
@@ -99,20 +113,6 @@ public class PhysicalPower {
 		return preferences.getInt(KEY_PRE_RESET_TIME, 1800);
 	}
 
-	/**
-	 * 设置体力刷新间隔
-	 * 
-	 * @param context
-	 * @param resetTime
-	 */
-	public void setResetTime(Context context, int resetTime) {
-		SharedPreferences preferences = context.getSharedPreferences(
-				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putInt(KEY_PRE_RESET_TIME, resetTime);
-		editor.commit();
-	}
-
 	// 获取退出的系统时间
 	private long getQuitTime(Context context) {
 		SharedPreferences preferences = context.getSharedPreferences(
@@ -126,16 +126,16 @@ public class PhysicalPower {
 	 * @param context
 	 * @return 剩余体力值
 	 */
-	public int consumePower(Context context) {
-		SharedPreferences preferences = context.getSharedPreferences(
-				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
-		temp--;
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putInt(KEY_PRE_CURRENT_NUMBER, temp);
-		editor.commit();
-		return temp;
-	}
+	// public int consumePower(Context context) {
+	// SharedPreferences preferences = context.getSharedPreferences(
+	// KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+	// int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
+	// temp--;
+	// SharedPreferences.Editor editor = preferences.edit();
+	// editor.putInt(KEY_PRE_CURRENT_NUMBER, temp);
+	// editor.commit();
+	// return temp;
+	// }
 
 	/**
 	 * 时间刷新接口
@@ -143,7 +143,7 @@ public class PhysicalPower {
 	 * @author qiuzhong
 	 * 
 	 */
-	public interface updateTime {
-		void updateResetTime(int second);
-	}
+	// public interface updateTime {
+	// void updateResetTime(int second);
+	// }
 }
