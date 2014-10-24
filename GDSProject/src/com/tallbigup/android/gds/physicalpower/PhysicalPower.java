@@ -68,7 +68,8 @@ public class PhysicalPower {
 		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
 		long time = 0;
 		if (getQuitTime(context) == 0) {
-			//
+			PlayerState state = new PlayerState(temp, 0);
+			return state;
 		} else {
 			time = System.currentTimeMillis() - getQuitTime(context);
 			if (time > 0) {
