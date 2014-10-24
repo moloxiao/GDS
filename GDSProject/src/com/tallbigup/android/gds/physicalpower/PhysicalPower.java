@@ -66,11 +66,16 @@ public class PhysicalPower {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
-		long time = System.currentTimeMillis() - getQuitTime(context);
-		if (time > 0) {
-			if (temp < getMaxNumber(context)) {
-				temp += time / (getResetTime(context) * 1000);
-				time = time % (getResetTime(context) * 1000);
+		long time = 0;
+		if (getQuitTime(context) == 0) {
+			//
+		} else {
+			time = System.currentTimeMillis() - getQuitTime(context);
+			if (time > 0) {
+				if (temp < getMaxNumber(context)) {
+					temp += time / (getResetTime(context) * 1000);
+					time = time % (getResetTime(context) * 1000);
+				}
 			}
 		}
 		PlayerState state = new PlayerState(temp, time);
