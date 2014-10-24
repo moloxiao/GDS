@@ -10,11 +10,17 @@ import android.content.SharedPreferences;
  * 
  */
 public class PhysicalPower {
+
 	private final static String KEY_PRE_PHYSICALPOWER = "KEY_PRE_PHYSICALPOWER";
 	private final static String KEY_PRE_MAX_NUMBER = "KEY_PRE_MAX_NUMBER";
 	private final static String KEY_PRE_CURRENT_NUMBER = "KEY_PRE_CURRENT_NUMBER";
 	private final static String KEY_PRE_RESET_TIME = "KEY_PRE_RESET_TIME";
-	private final static String KEY_PRE_QUIT_TIME = "KEY_PRE_QUIT_TIME";
+	private final static String KEY_PRE_LAST_RECOVER_TIME = "KEY_PRE_LAST_RECOVER_TIME";
+
+	public static int TIME = 0;
+	public static final int MAX_POWER = 5;
+	public static final int RECOVER_TIME = 1800;// 秒
+	private Context context;
 
 	private PhysicalPower() {
 		// 私有构造
@@ -30,57 +36,32 @@ public class PhysicalPower {
 		}
 	}
 
+	public void init(Context context) {
+		this.context = context;
+	}
+
 	/**
 	 * 获取体力上限
 	 * 
-	 * @param context
 	 * @return
 	 */
-	public int getMaxNumber(Context context) {
+	public int getMaxNumber() {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		return preferences.getInt(KEY_PRE_MAX_NUMBER, 5);
+		return preferences.getInt(KEY_PRE_MAX_NUMBER, MAX_POWER);
 	}
 
 	/**
 	 * 设置体力上限
 	 * 
-	 * @param context
 	 * @param maxNumber
 	 */
-	public void setMaxNumber(Context context, int maxNumber) {
+	public void setMaxNumber(int maxNumber) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putInt(KEY_PRE_MAX_NUMBER, maxNumber);
 		editor.commit();
-	}
-
-	/**
-	 * 获取当前的体力值,下一次恢复的时间豪秒
-	 * 
-	 * @param context
-	 * @return
-	 */
-	public PlayerState getCurrentNumber(Context context) {
-		SharedPreferences preferences = context.getSharedPreferences(
-				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
-		long time = 0;
-		if (getQuitTime(context) == 0) {
-			PlayerState state = new PlayerState(temp, 0);
-			return state;
-		} else {
-			time = System.currentTimeMillis() - getQuitTime(context);
-			if (time > 0) {
-				if (temp < getMaxNumber(context)) {
-					temp += time / (getResetTime(context) * 1000);
-					time = time % (getResetTime(context) * 1000);
-				}
-			}
-		}
-		PlayerState state = new PlayerState(temp, time);
-		return state;
 	}
 
 	/**
@@ -98,58 +79,64 @@ public class PhysicalPower {
 	}
 
 	/**
-	 * 设置离开游戏时的体力值,系统时间毫秒
-	 * 
-	 * @param context
-	 * @param maxNumber
+	 * 消耗体力
 	 */
-	public void setCurrentNumber(Context context, PlayerState playerState) {
+	public void consumePower(int number) {
+		int currentPower = getCurrentPower();
+		currentPower -= number;
+		saveCurrentPower(currentPower);
+	}
+
+	/**
+	 * 添加体力
+	 */
+	public void plusPower(int number) {
+		int currentPower = getCurrentPower();
+		currentPower += number;
+		saveCurrentPower(currentPower);
+	}
+
+	/**
+	 * 游戏开始时调用
+	 */
+	public void getStartPower() {
+		// TODO
+	}
+
+	// 获取当前体力值
+	private int getCurrentPower() {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		return preferences.getInt(KEY_PRE_CURRENT_NUMBER, MAX_POWER);
+	}
+
+	// 保存当前体力值
+	private void saveCurrentPower(int powers) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putInt(KEY_PRE_CURRENT_NUMBER, playerState.getCurrentPower());
-		editor.putLong(KEY_PRE_QUIT_TIME, playerState.getSecond());
+		editor.putInt(KEY_PRE_CURRENT_NUMBER, powers);
 		editor.commit();
 	}
 
-	// 获取体力刷新间隔
-	public int getResetTime(Context context) {
+	// 获取上一次体力回复的时间
+	private int getLastRecoverTime() {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		return preferences.getInt(KEY_PRE_RESET_TIME, 1800);
+		return preferences.getInt(KEY_PRE_LAST_RECOVER_TIME, 0);
 	}
 
-	// 获取退出的系统时间
-	private long getQuitTime(Context context) {
+	// 保存上一次体力恢复时间
+	private void saveLastRecoverTime(long systime) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-		return preferences.getLong(KEY_PRE_QUIT_TIME, 0);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putLong(KEY_PRE_LAST_RECOVER_TIME, systime);
+		editor.commit();
 	}
 
-	/**
-	 * 消耗体力值
-	 * 
-	 * @param context
-	 * @return 剩余体力值
-	 */
-	// public int consumePower(Context context) {
-	// SharedPreferences preferences = context.getSharedPreferences(
-	// KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
-	// int temp = preferences.getInt(KEY_PRE_CURRENT_NUMBER, 5);
-	// temp--;
-	// SharedPreferences.Editor editor = preferences.edit();
-	// editor.putInt(KEY_PRE_CURRENT_NUMBER, temp);
-	// editor.commit();
-	// return temp;
-	// }
+	public interface OmgInterface {
+		// TODO
+	}
 
-	/**
-	 * 时间刷新接口
-	 * 
-	 * @author qiuzhong
-	 * 
-	 */
-	// public interface updateTime {
-	// void updateResetTime(int second);
-	// }
 }
