@@ -36,8 +36,14 @@ public class PhysicalPower {
 		}
 	}
 
-	public void init(Context context) {
+	public int init(Context context) {
 		this.context = context;
+		long d_value=System.currentTimeMillis()-getLastRecoverTime();
+		int number=(int) ((d_value/1000)/getResetTime());
+		// if(){
+		//
+		// }
+		return number;
 	}
 
 	/**
@@ -77,30 +83,37 @@ public class PhysicalPower {
 		editor.putInt(KEY_PRE_RESET_TIME, resetTime);
 		editor.commit();
 	}
+    /**
+     * 获取刷新间隔
+     * @return
+     */
+	public int getResetTime() {
+		SharedPreferences preferences = context.getSharedPreferences(
+				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
+		return preferences.getInt(KEY_PRE_RESET_TIME, RECOVER_TIME);
+	}
 
 	/**
 	 * 消耗体力
 	 */
-	public void consumePower(int number) {
+	public boolean consumePower(int number) {
 		int currentPower = getCurrentPower();
 		currentPower -= number;
-		saveCurrentPower(currentPower);
+		if (currentPower >= 0) {
+			saveCurrentPower(currentPower);
+			return true;
+		}
+		return false;
 	}
 
 	/**
 	 * 添加体力
 	 */
-	public void plusPower(int number) {
+	public boolean plusPower(int number) {
 		int currentPower = getCurrentPower();
 		currentPower += number;
 		saveCurrentPower(currentPower);
-	}
-
-	/**
-	 * 游戏开始时调用
-	 */
-	public void getStartPower() {
-		// TODO
+		return true;
 	}
 
 	// 获取当前体力值
