@@ -1,5 +1,8 @@
 package com.tallbigup.android.gds.physicalpower;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -21,6 +24,7 @@ public class PhysicalPower {
 	public static final int MAX_POWER = 5;
 	public static final int RECOVER_TIME = 1800;// 秒
 	private Context context;
+	private PowerUpdateInterface powerUpdateInterface;
 
 	private PhysicalPower() {
 		// 私有构造
@@ -36,13 +40,18 @@ public class PhysicalPower {
 		}
 	}
 
-	public int init(Context context) {
+	public int getPowerInfo(Context context, PowerUpdateInterface pinterface) {
 		this.context = context;
-		long d_value=System.currentTimeMillis()-getLastRecoverTime();
-		int number=(int) ((d_value/1000)/getResetTime());
-		// if(){
-		//
-		// }
+		this.powerUpdateInterface = pinterface;
+		long d_value = System.currentTimeMillis() - getLastRecoverTime();
+		int number = (int) ((d_value / 1000) / getResetTime());
+		if (number > getMaxNumber()) {
+			number = getMaxNumber();
+		} else {
+			saveLastRecoverTime(getLastRecoverTime() + number * getResetTime()
+					* 1000);
+			calculaTime();
+		}
 		return number;
 	}
 
@@ -74,7 +83,7 @@ public class PhysicalPower {
 	 * 设置体力刷新间隔
 	 * 
 	 * @param context
-	 * @param resetTime
+	 * @param resetTime秒
 	 */
 	public void setResetTime(Context context, int resetTime) {
 		SharedPreferences preferences = context.getSharedPreferences(
@@ -83,10 +92,12 @@ public class PhysicalPower {
 		editor.putInt(KEY_PRE_RESET_TIME, resetTime);
 		editor.commit();
 	}
-    /**
-     * 获取刷新间隔
-     * @return
-     */
+
+	/**
+	 * 获取刷新间隔秒
+	 * 
+	 * @return
+	 */
 	public int getResetTime() {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
@@ -98,6 +109,9 @@ public class PhysicalPower {
 	 */
 	public boolean consumePower(int number) {
 		int currentPower = getCurrentPower();
+		if (currentPower >= getMaxNumber()) {
+			saveLastRecoverTime(System.currentTimeMillis());// 体力满值的情况
+		}
 		currentPower -= number;
 		if (currentPower >= 0) {
 			saveCurrentPower(currentPower);
@@ -148,8 +162,25 @@ public class PhysicalPower {
 		editor.commit();
 	}
 
-	public interface OmgInterface {
-		// TODO
+	private void calculaTime() {
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+
+			@Override
+			public void run() {
+				do {
+					if (System.currentTimeMillis() - getLastRecoverTime() >= getResetTime() * 1000) {
+						saveLastRecoverTime(System.currentTimeMillis());
+						powerUpdateInterface.updatePowerRecoverTime();
+					}
+				} while (getCurrentPower() == getMaxNumber());
+			}
+		};
+		timer.schedule(task, 0, 1000);
+	}
+
+	public interface PowerUpdateInterface {
+		public void updatePowerRecoverTime();
 	}
 
 }
