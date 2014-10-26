@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.format.Time;
 
 /**
  * 单例
@@ -85,7 +86,7 @@ public class PhysicalPower {
 	 * @param context
 	 * @param resetTime秒
 	 */
-	public void setResetTime(Context context, int resetTime) {
+	public void setResetTime(int resetTime) {
 		SharedPreferences preferences = context.getSharedPreferences(
 				KEY_PRE_PHYSICALPOWER, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
@@ -169,9 +170,11 @@ public class PhysicalPower {
 			@Override
 			public void run() {
 				do {
+					TIME = getResetTime() - 1;
 					if (System.currentTimeMillis() - getLastRecoverTime() >= getResetTime() * 1000) {
 						saveLastRecoverTime(System.currentTimeMillis());
 						powerUpdateInterface.updatePowerRecoverTime();
+						TIME = 0;
 					}
 				} while (getCurrentPower() == getMaxNumber());
 			}
